@@ -234,11 +234,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (slide.dataset.step == this.currentStep) {
                     slide.classList.add("active");
 
+
                 }
             });
 
             this.$stepInstructions[0].parentElement.parentElement.hidden = this.currentStep >= 6;
             this.$step.parentElement.hidden = this.currentStep >= 6;
+            const numberOfBags = getNumberOfBags();
+            updateSummaryText(numberOfBags);
 
             // TODO: get data from inputs and show them in summary
         }
@@ -283,6 +286,7 @@ categorycheckboxes.forEach(function (checkbox) {
         filterInstCategories(selectedCategories)
     })
 })
+
 /**
  * For every hidden data-value if equal selected checkbox
  * Change visibility from none to block
@@ -292,7 +296,6 @@ function filterInstCategories(categories) {
     institutions.forEach(function (institution) {
         const categoriesInInstitution = institution.querySelectorAll('.categories_of_institutions');
         let showInstitution = false;
-
         categoriesInInstitution.forEach(function (category) {
             if (categories.includes(category.dataset.value)) {
                 showInstitution = true;
@@ -300,8 +303,39 @@ function filterInstCategories(categories) {
         });
         if (showInstitution) {
             institution.style.display = 'block';
+
         } else {
             institution.style.display = 'none';
         }
     })
 }
+
+/**
+ * remember bags
+ */
+function getNumberOfBags() {
+    const bagsInput = document.querySelector('input[name="bags"]');
+    if (bagsInput) {
+        return parseInt(bagsInput.value);
+    } else {
+        return null;
+    }
+}
+
+
+/**
+ * update number of bags
+ */
+
+function updateSummaryText(numberOfBags) {
+    const summaryTextElement = document.querySelector('.form-section .summary--text');
+    if (summaryTextElement) {
+        if (numberOfBags === 1) {
+            summaryTextElement.textContent = `${numberOfBags} worek z ${selectedCategories} `;
+        } else {
+            summaryTextElement.textContent = `${numberOfBags} worki z ${selectedCategories}`
+        }
+
+    }
+}
+
