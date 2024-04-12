@@ -17,7 +17,11 @@
 
     <section class="login-page">
       <h2>Zaloguj się</h2>
-      <form>
+                {% for message in messages %}
+            <h3 class="center">{{ message }}</h3>
+        {% endfor %}
+      <form method="POST">
+          {% csrf_token %}
         <div class="form-group">
           <input type="email" name="email" placeholder="Email" />
         </div>

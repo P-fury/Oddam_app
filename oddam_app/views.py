@@ -1,3 +1,5 @@
+from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
@@ -6,7 +8,7 @@ from django.views import View
 from django.views.generic import TemplateView
 
 from oddam_app.forms import UserForm
-from oddam_app.models import Donation, Institution
+from oddam_app.models import Donation, Institution, Category
 
 
 # Create your views here.
@@ -35,8 +37,29 @@ class RegisterView(View):
 
 class LoginView(View):
     def get(self, request):
-
         return render(request, 'login.html')
+
+    def post(self, request):
+        username = request.POST['email']
+        password = request.POST.get('password')
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect('index')
+        else:
+            try:
+                exisitng_user = User.objects.get(username=username)
+                messages.error(request, 'Niepoprawne hasło')
+                return redirect('login')
+            except User.DoesNotExist:
+                messages.error(request, 'Nie ma takiego użytkownika')
+                return redirect('register')
+
+
+class LogoutView(View):
+    def get(self, request):
+        logout(request)
+        return redirect('index')
 
 
 class LandingPageView(View):
@@ -46,8 +69,8 @@ class LandingPageView(View):
 
         institutions = Institution.objects.all()
         fundations = institutions.filter(type='fundacja')
-        organizations = institutions.filter(type='organizacja_pozarządowa')
-        locals = institutions.filter(type='zbiórka_lokalna')
+        # organizations = institutions.filter(type='organizacja_pozarządowa')
+        # locals = institutions.filter(type='zbiórka_lokalna')
 
         fundations_paginator = Paginator(fundations, 5)
         fundations_page_number = request.GET.get('page')
@@ -55,9 +78,9 @@ class LandingPageView(View):
 
         context = {'amount_of_bags': amount_of_bags,
                    'number_of_institution': number_of_institution,
-                   'fundations': fundations,
-                   'organizations': organizations,
-                   'locals': locals,
+                   # 'fundations': fundations,
+                   # 'organizations': organizations,
+                   # 'locals': locals,
                    'fundation_page_obj': fundation_page_obj,
 
                    }
@@ -67,4 +90,11 @@ class LandingPageView(View):
 
 class AddDonationView(View):
     def get(self, request):
-        return render(request, 'form.html')
+        categories = Category.objects.all()
+        institutions = Institution.objects.all()
+
+        context = {
+            'categories': categories,
+            'institutions': institutions,
+        }
+        return render(request, 'form.html', context)
