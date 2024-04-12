@@ -115,17 +115,21 @@
                     </li>
                 {% endfor %}
             </ul>
+
+
+<ul class="help--slides-pagination">
+    {% for pg_number in fundation_page_obj.paginator.page_range %}
+        {% if pg_number == fundation_page_obj.number %}
+            <li><a href="?page={{ pg_number }}" class="btn btn--small btn--without-border active" data-page={{ pg_number }}>{{ pg_number }}</a></li>
+        {% else %}
+            <li><a href="?page={{ pg_number }}" class="btn btn--small btn--without-border" data-page={{ pg_number }}>{{ pg_number }}</a></li>
+        {% endif %}
+    {% endfor %}
+</ul>
+
         
-    
-
-
-                <ul class="help--slides-pagination">
-                    {% for pg_number in fundation_page_obj.paginator.page_range %}
-                  <li><a href="?page={{ pg_number }}" class="btn btn--small btn--without-border active" data-page={{ pg_number }}>{{ pg_number }}</a></li>
-{#                          <li><a href="#" class="btn btn--small btn--without-border" data-page="2">2</a></li>#}
-{#                          <li><a href="#" class="btn btn--small btn--without-border" data-page="3">3</a></li>#}
-                 {% endfor %}
-                </ul>
+        
+        
         </div>
 
 
