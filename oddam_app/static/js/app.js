@@ -240,10 +240,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
             this.$stepInstructions[0].parentElement.parentElement.hidden = this.currentStep >= 6;
             this.$step.parentElement.hidden = this.currentStep >= 6;
-            const numberOfBags = getNumberOfBags();
-            updateSummaryText(numberOfBags);
 
             // TODO: get data from inputs and show them in summary
+            const numberOfBags = getNumberOfBags();
+            updateSummaryBags(numberOfBags);
+            updateSummaryAndRetrieveOrganizationName();
+            pickupFormSaveAndWrite();
+            // writeFromPickupDict()
         }
 
         /**
@@ -315,8 +318,12 @@ function filterInstCategories(categories) {
  */
 function getNumberOfBags() {
     const bagsInput = document.querySelector('input[name="bags"]');
+    // const PostForm = document.querySelector('input[id="amount_of_bags"]');
+
     if (bagsInput) {
+        // PostForm.value = bagsInput
         return parseInt(bagsInput.value);
+
     } else {
         return null;
     }
@@ -324,18 +331,74 @@ function getNumberOfBags() {
 
 
 /**
- * update number of bags
+ * update summary of bags
  */
 
-function updateSummaryText(numberOfBags) {
+function updateSummaryBags(numberOfBags) {
     const summaryTextElement = document.querySelector('.form-section .summary--text');
     if (summaryTextElement) {
         if (numberOfBags === 1) {
-            summaryTextElement.textContent = `${numberOfBags} worek z ${selectedCategories} `;
+            summaryTextElement.textContent = `${numberOfBags} worek z ${selectedCategories}`;
         } else {
-            summaryTextElement.textContent = `${numberOfBags} worki z ${selectedCategories}`
+            summaryTextElement.textContent = `${numberOfBags} worki z ${selectedCategories}`;
         }
 
     }
 }
 
+/**
+ * upate summary of organizaion
+ */
+function updateSummaryAndRetrieveOrganizationName() {
+    const organizationChoice = document.querySelectorAll('input[name="organization"]');
+    const summaryTextElements = document.querySelectorAll('.summary--text');
+    const organizationType = document.querySelector('.type-of-organization').innerText
+
+    organizationChoice.forEach(radio => {
+        radio.addEventListener('change', function () {
+            const selectedOrganizationName = this.parentElement.querySelector('.title').innerText;
+            if (selectedOrganizationName) {
+                summaryTextElements.forEach((element, index) => {
+                    if (index === 1) {
+                        element.textContent = `Dla ${organizationType} "${selectedOrganizationName}"`;
+                    }
+                });
+            }
+        });
+    });
+}
+
+function pickupFormSaveAndWrite() {
+    const nextButton = document.querySelector('.form--steps [data-step="4"] .next-step');
+    const pickupForm = document.getElementById('pickup_form');
+    let addressDict = {};
+    let dateScheduleDict = {}
+
+    nextButton.addEventListener('click', function () {
+        addressDict.address = pickupForm.querySelector('input[name="address"]').value;
+        addressDict.city = pickupForm.querySelector('input[name="city"]').value;
+        addressDict.postcode = pickupForm.querySelector('input[name="postcode"]').value;
+        addressDict.phone = pickupForm.querySelector('input[name="phone"]').value;
+        dateScheduleDict.date = pickupForm.querySelector('input[name="data"]').value;
+        dateScheduleDict.time = pickupForm.querySelector('input[name="time"]').value;
+        dateScheduleDict.moreInfo = pickupForm.querySelector('textarea[name="more_info"]').value;
+        console.log(addressDict, dateScheduleDict)
+        writeFromPickupDict(addressDict, dateScheduleDict);
+    });
+
+    return addressDict, dateScheduleDict;
+}
+
+function writeFromPickupDict(addressDict, dateScheduleDict) { // Dodanie formDict jako argumentu
+    const firstRow = document.querySelectorAll('.form-section--columns > .form-section--column:first-child li');
+    const secondRow = document.querySelectorAll('.form-section--columns > .form-section--column:nth-child(2) li');
+    firstRow.forEach((item, index) => {
+        const keys = Object.keys(addressDict);
+        item.textContent = addressDict[keys[index]];
+
+        secondRow.forEach((item, index) => {
+            const keys = Object.keys(dateScheduleDict)
+            item.textContent = dateScheduleDict[keys[index]];
+        })
+    });
+}

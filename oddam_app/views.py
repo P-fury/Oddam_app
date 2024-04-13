@@ -3,6 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.views import View
 from django.views.generic import TemplateView
@@ -98,3 +99,16 @@ class AddDonationView(View):
             'institutions': institutions,
         }
         return render(request, 'form.html', context)
+
+    def post(self, request):
+        if request.method == 'POST':
+            date_info = request.POST.get('date')
+            return HttpResponse('Otrzymano datę: ' + date_info)
+
+        else:
+            return render(request, 'form-confirmation.html')
+
+
+class ConfirmationView(View):
+    def get(self, request):
+        return render(request, 'form-confirmation.html')
