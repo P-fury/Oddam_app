@@ -68,7 +68,8 @@
         <div class="form--steps-container">
             <div id="donation-form" class="form--steps-counter">Krok <span>1</span>/5</div>
 
-            <form action="form-confirmation.html" method="post">
+            <form id='whole_form' action="/adddonation/" method="post">
+                {% csrf_token %}
                 <!-- STEP 1: class .active is switching steps -->
                 <div data-step="1" class="active">
                     <h3>Zaznacz co chcesz oddać:</h3>
@@ -120,7 +121,7 @@
                     {% for institution in institutions %}
                         <div class="form-group form-group--checkbox" style="display: none;">
                             <label>
-                                <input type="radio" name="organization" value="old"/>
+                                <input type="radio" name="organization" value="{{ institution.name }}"/>
                                 <span class="checkbox radio"></span>
                                 <span class="description">
                   <div class="title">{{ institution.name }}</div>
@@ -245,9 +246,6 @@
                         <button type="button" class="btn prev-step">Wstecz</button>
 
                         <button type="submit" class="btn">Potwierdzam</button>
-{#                            <div hidden>#}
-{#                                <input type="number" id="amount_of_bags" value="">#}
-{#                            </div>#}
                     </div>
                 </div>
             </form>
