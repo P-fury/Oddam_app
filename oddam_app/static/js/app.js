@@ -318,10 +318,10 @@ function filterInstCategories(categories) {
  */
 function getNumberOfBags() {
     const bagsInput = document.querySelector('input[name="bags"]');
-    // const PostForm = document.querySelector('input[id="amount_of_bags"]');
+
 
     if (bagsInput) {
-        // PostForm.value = bagsInput
+
         return parseInt(bagsInput.value);
 
     } else {
@@ -402,3 +402,30 @@ function writeFromPickupDict(addressDict, dateScheduleDict) { // Dodanie formDic
         })
     });
 }
+
+document.getElementById("whole_form").addEventListener("submit", function (event) {
+    event.preventDefault(); // Zapobiega domyślnej akcji formularza (czyli przeładowania strony)
+
+    var form = event.target;
+    var formData = new FormData(form);
+
+    console.log(formData)
+
+    fetch('/adddonation/', {
+        method: 'POST',
+        body: formData
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            window.location.href = "/confirm/"
+            return response.json();
+        })
+        .then(data => {
+            console.log('Odpowiedź z serwera:', data);
+        })
+        .catch(error => {
+            console.error('Błąd podczas wysyłania żądania:', error);
+        });
+});

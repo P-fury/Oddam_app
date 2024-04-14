@@ -1,10 +1,14 @@
+from datetime import datetime, time
+from time import mktime
+
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.views import View
 from django.views.generic import TemplateView
 
@@ -101,12 +105,27 @@ class AddDonationView(View):
         return render(request, 'form.html', context)
 
     def post(self, request):
-        if request.method == 'POST':
-            date_info = request.POST.get('date')
-            return HttpResponse('Otrzymano datę: ' + date_info)
+        if request.method == "POST":
 
-        else:
-            return render(request, 'form-confirmation.html')
+            form = request.POST
+            inst = Institution.objects.get(name=form['organization'])
+            categories = Category.objects.filter(name__in=form.getlist('categories'))
+            date = form['data']
+            time = form['time']
+            donation = Donation.objects.create(
+                quantity=form['bags'],
+                address=form['address'],
+                city=form['city'],
+                phone=form['phone'],
+                zipcode=form['postcode'],
+                pick_up_date=date,
+                pick_up_time=time,
+                pick_up_comment=form['more_info'],
+                user=request.user,
+                institution=inst
+            )
+            donation.category.set(categories)
+            return redirect('confirm')
 
 
 class ConfirmationView(View):
