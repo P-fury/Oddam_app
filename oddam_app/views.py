@@ -2,7 +2,7 @@ from datetime import datetime, time
 from time import mktime
 
 from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
@@ -67,6 +67,13 @@ class LogoutView(View):
     def get(self, request):
         logout(request)
         return redirect('index')
+
+
+class UserSiteView(View):
+    def get(self, request):
+        User = get_user_model()
+        user = User.objects.get(pk=request.user.pk)
+        return render(request, 'user-site.html', {'user':user})
 
 
 class LandingPageView(View):
