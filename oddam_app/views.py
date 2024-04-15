@@ -14,6 +14,8 @@ from django.views.generic import TemplateView
 
 from oddam_app.forms import UserForm
 from oddam_app.models import Donation, Institution, Category
+from user.forms import CustomUserCreationForm
+from user.models import CustomUser
 
 
 # Create your views here.
@@ -21,19 +23,19 @@ from oddam_app.models import Donation, Institution, Category
 
 class RegisterView(View):
     def get(self, request):
-        form = UserForm()
+        form = CustomUserCreationForm()
         return render(request, 'register.html', {'form': form})
 
     def post(self, request):
-        form = UserForm(request.POST)
+        form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             first_name = form.cleaned_data['first_name']
             last_name = form.cleaned_data['last_name']
             email = form.cleaned_data['email']
             password = form.cleaned_data['password1']
 
-            user = User.objects.create_user(username=email, email=email, password=password, first_name=first_name,
-                                            last_name=last_name)
+            user = CustomUser.objects.create_user(username=email, email=email, password=password, first_name=first_name,
+                                                  last_name=last_name)
             return redirect('login')
 
         else:
@@ -53,10 +55,10 @@ class LoginView(View):
             return redirect('index')
         else:
             try:
-                exisitng_user = User.objects.get(username=username)
+                exisitng_user = CustomUser.objects.get(username=username)
                 messages.error(request, 'Niepoprawne hasło')
                 return redirect('login')
-            except User.DoesNotExist:
+            except CustomUser.DoesNotExist:
                 messages.error(request, 'Nie ma takiego użytkownika')
                 return redirect('register')
 
@@ -106,7 +108,6 @@ class AddDonationView(View):
 
     def post(self, request):
         if request.method == "POST":
-
             form = request.POST
             inst = Institution.objects.get(name=form['organization'])
             categories = Category.objects.filter(name__in=form.getlist('categories'))
