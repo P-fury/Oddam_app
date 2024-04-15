@@ -1,12 +1,17 @@
 from django.contrib.auth.models import User, AbstractUser
 from django.db import models
 
+from django.conf import settings
+
 
 # Create your models here.
 
 
 class Category(models.Model):
     name = models.CharField(max_length=64)
+
+    def __str__(self):
+        return self.name
 
 
 class Institution(models.Model):
@@ -21,6 +26,11 @@ class Institution(models.Model):
     type = models.CharField(choices=TYPE_CHOICES, default='fundacja', max_length=32)
     categories = models.ManyToManyField(Category)
 
+    def __str__(self):
+        return self.name
+
+
+
 
 class Donation(models.Model):
     quantity = models.IntegerField()
@@ -33,6 +43,6 @@ class Donation(models.Model):
     pick_up_date = models.DateField()
     pick_up_time = models.TimeField()
     pick_up_comment = models.TextField()
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, default=None)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, default=None)
 
 
