@@ -15,7 +15,29 @@
     <body>
     {% include 'nav.html' %}
     <h2>Użytkownik</h2>
-<div class="user-info">Imię: {{ user.first_name }}<br>Nazwisko: {{ user.last_name }}<br>Email: {{ user.email }}</div>
-</body>
+    <div class="user-info">Imię: {{ user.first_name }}<br>Nazwisko: {{ user.last_name }}<br>Email: {{ user.email }}
+    </div>
+
+
+    <h2>Przekazane dary:</h2>
+    <div class="user-info">Liczba przekazanych worków: {{ number_of_bags }}</div>
+        
+        <ul class='user-info'>Szczegóły darownizn
+            {% for donation in donations %}
+            <li>
+                Worki: {{ donation.quantity }}
+                Instytytucja: {{ donation.institution.name }}
+                Kategorie: {% for category in donation.category.all %}
+                {{ category.name }}
+                {% endfor %}
+                Odbior: {{ donation.pick_up_date }}
+            </li>
+            {% endfor %}
+        </ul>
+        
+        
+        
+    
+    </body>
 
 {% endblock content %}
