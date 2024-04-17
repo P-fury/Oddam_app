@@ -73,7 +73,16 @@ class UserSiteView(View):
     def get(self, request):
         User = get_user_model()
         user = User.objects.get(pk=request.user.pk)
-        return render(request, 'user-site.html', {'user':user})
+        donations = Donation.objects.filter(user=user)
+        number_of_bags = sum([bags.quantity for bags in donations])
+
+        context = {
+            'user': user,
+            'number_of_bags': number_of_bags,
+            'donations': donations
+
+        }
+        return render(request, 'user-site.html', context )
 
 
 class LandingPageView(View):
