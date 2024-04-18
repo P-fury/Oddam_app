@@ -21,19 +21,27 @@
 
     <h2>Przekazane dary:</h2>
     <div class="user-info">Liczba przekazanych worków: {{ number_of_bags }}</div>
-        
-        <ul class='user-info'>Szczegóły darownizn
-            {% for donation in donations %}
-            <li>
-                Worki: {{ donation.quantity }}
-                Instytytucja: {{ donation.institution.name }}
-                Kategorie: {% for category in donation.category.all %}
-                {{ category.name }}
-                {% endfor %}
-                Odbior: {{ donation.pick_up_date }}
-            </li>
+    <div class="user-info">Szczegóły darownizn:</div>
+        <table class='user-info-table'>
+            <tr>
+                <th>Worki: </th>
+                <th>Instytytucja: </th>
+                <th>Kategorie: </th>
+                <th>Odbior: </th>
+            </tr>
+        {% for donation in donations %}
+            <tr>
+                <td>{{ donation.quantity }}</td>
+                <td>{{ donation.institution.name }}
+                <td>{% for category in donation.category.all %}
+                {{ category.name }}{% if not forloop.last %}, {% endif %}
+                {% endfor %}</td>
+            {% load tz %} 
+                {% if donation.pick_up_date < today %}<td>Był: {{ donation.pick_up_date }}</td>{% endif %}
+            {% if donation.pick_up_date >= today %}<td>Będzie: {{ donation.pick_up_date }}</td>{% endif %}
+            </tr>
             {% endfor %}
-        </ul>
+        </table>
         
         
         
