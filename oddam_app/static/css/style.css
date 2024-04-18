@@ -1838,28 +1838,19 @@ USER INFO PAGE
 
 
 .user-info {
-    height: auto;
     font-size: 28px;
     text-align: center;
-    border-collapse: collapse;
-    display: block;
-    margin-bottom: 150px;
+    margin-bottom: 50px;
 }
 
 .user-info-table {
-    width: 50%;
-    height: 100px;
-    font-size: 28px;
-    text-align: center;
-    display: block;
-    align-content: center;
-    margin: 0 auto 150px;
-    border-collapse: collapse;
-    padding: 50px;
+    width: 70%;
+    margin: 40px auto;
 }
 
 .user-info-table th, .user-info-table td {
-    padding: 5px;
+    padding: 10px;
     text-align: center;
+    font-size: 22px;
 }
 

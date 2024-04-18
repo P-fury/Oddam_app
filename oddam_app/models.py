@@ -30,8 +30,6 @@ class Institution(models.Model):
         return self.name
 
 
-
-
 class Donation(models.Model):
     quantity = models.IntegerField()
     category = models.ManyToManyField(Category)
@@ -45,5 +43,3 @@ class Donation(models.Model):
     pick_up_comment = models.TextField()
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, default=None)
     is_taken = models.BooleanField(default=False)
-
-

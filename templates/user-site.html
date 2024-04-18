@@ -1,17 +1,19 @@
 {% extends 'base.html' %}
 {% load static %}
-<!doctype html>
+
+
+{% block content %}
+    <!doctype html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="csrf-token" content="{{ csrf_token }}">
     <title>User</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}"/>
 </head>
-
-{% block content %}
     <body>
     {% include 'nav.html' %}
     <h2>Użytkownik</h2>
@@ -22,30 +24,36 @@
     <h2>Przekazane dary:</h2>
     <div class="user-info">Liczba przekazanych worków: {{ number_of_bags }}</div>
     <div class="user-info">Szczegóły darownizn:</div>
-        <table class='user-info-table'>
-            <tr>
-                <th>Worki: </th>
-                <th>Instytytucja: </th>
-                <th>Kategorie: </th>
-                <th>Odbior: </th>
-            </tr>
+    <table class='user-info-table'>
+        <tr>
+            <th>Worki:</th>
+            <th>Instytytucja:</th>
+            <th>Kategorie:</th>
+            <th>Odbior:</th>
+            <th>Zabrany:</th>
+        </tr>
         {% for donation in donations %}
             <tr>
+            <label for="is_taken_{{ forloop.counter }}">
                 <td>{{ donation.quantity }}</td>
                 <td>{{ donation.institution.name }}
                 <td>{% for category in donation.category.all %}
-                {{ category.name }}{% if not forloop.last %}, {% endif %}
+                    {{ category.name }}{% if not forloop.last %}, {% endif %}
                 {% endfor %}</td>
-            {% load tz %} 
-                {% if donation.pick_up_date < today %}<td>Był: {{ donation.pick_up_date }}</td>{% endif %}
-            {% if donation.pick_up_date >= today %}<td>Będzie: {{ donation.pick_up_date }}</td>{% endif %}
-            </tr>
-            {% endfor %}
-        </table>
-        
-        
-        
-    
+                {% load tz %}
+                {% if donation.pick_up_date < today %}
+                    <td>Był: {{ donation.pick_up_date }}</td>{% endif %}
+                {% if donation.pick_up_date >= today %}
+                    <td>Będzie: {{ donation.pick_up_date }}</td>{% endif %}
+            
+                <td><input type="checkbox" name="is_taken" id="is_taken_{{ forloop.counter }}"
+                           data-donation-id="{{ donation.id }}" {% if donation.is_taken %}checked{% endif %}></td>
+            </label>
+        {% endfor %}
+        </tr>
+    </table>
+
+
     </body>
 
 {% endblock content %}
