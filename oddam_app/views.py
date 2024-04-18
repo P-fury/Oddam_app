@@ -1,4 +1,4 @@
-from datetime import datetime, time
+from datetime import datetime, time, date
 from time import mktime
 
 from django.contrib import messages
@@ -73,13 +73,14 @@ class UserSiteView(View):
     def get(self, request):
         User = get_user_model()
         user = User.objects.get(pk=request.user.pk)
-        donations = Donation.objects.filter(user=user)
+        donations = Donation.objects.filter(user=user).order_by('pick_up_date')
         number_of_bags = sum([bags.quantity for bags in donations])
 
         context = {
             'user': user,
             'number_of_bags': number_of_bags,
-            'donations': donations
+            'donations': donations,
+            'today': date.today(),
 
         }
         return render(request, 'user-site.html', context )
