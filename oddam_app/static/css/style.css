@@ -1859,14 +1859,15 @@ USER INFO PAGE
     flex-direction: column;
     align-items: center;
     margin-bottom: 50px;
+    font-size: 18px;
 }
 
 .open-edit input {
     font-size: 18px;
     margin-top: 20px;
-    width: 80%;
     margin-left: auto;
     margin-right: auto;
+    color: grey;
 }
 
 .open-edit button {
@@ -1874,4 +1875,13 @@ USER INFO PAGE
     margin-top: 20px;
     margin-left: auto;
     margin-right: auto;
+}
+
+.info {
+    font-size: 14px;
+    text-align: center;
+}
+.error {
+    font-size: 14px;
+    text-align: center;
 }

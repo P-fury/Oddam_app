@@ -16,11 +16,44 @@
     </head>
     <body>
     {% include 'nav.html' %}
-    <h2>Użytkownik</h2>
-    <div class="user-info">
-        Imię: {{ userEdit.first_name }}<br>Nazwisko: {{ userEdit.last_name }}<br>Email: {{ userEdit.email }}
-    </div>
-    
+    <h2 id="user_data">Użytkownik</h2>
+
+    {% if messages %}
+
+        {% for message in messages %}
+            {% if 'edit_data' in message.tags %}
+            <div class="{{ message.tags }}">{{ message }}</div>
+            {% endif %}
+        {% endfor %}
+
+    {% endif %}
+    <form method="POST" class="open-edit" id="edit_data_form">
+        {% csrf_token %}
+        <p>Imię: {{ userEdit.first_name }}</p>
+        <p>Nazwisko: {{ userEdit.last_name }}</p>
+        <p>Email: {{ userEdit.email }}</p>
+        <p>Haslo: <input type="password" name="confirm-password"></p>
+        <button type='submit' class="btn" name="edit_data">edytuj</button>
+    </form>
+
+        <h2 id="user_password">Zmiana hasła</h2>
+     {% if messages %}
+
+        {% for message in messages %}
+            {% if 'edit_password' in message.tags %}
+            <div{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</div>
+            {% endif %}
+        {% endfor %}
+
+    {% endif %}
+    <form method="POST" class="open-edit" id="change_password_form">
+        {% csrf_token %}
+        {{ userPasswordEditForm.old_password }}
+        {{ userPasswordEditForm.new_password1 }}
+        {{ userPasswordEditForm.new_password2 }}
+        <button type="submit" class="btn" name="change_password">Zmień hasło</button>
+    </form>
+
     </body>
 
 {% endblock content %}

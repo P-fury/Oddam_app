@@ -1,6 +1,5 @@
-from django.contrib.auth.forms import UserCreationForm, UserChangeForm
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm, PasswordChangeForm
 from django.contrib.auth.models import User
-
 
 from user.models import CustomUser
 
@@ -41,6 +40,25 @@ class UserEditForm(UserChangeForm):
         self.fields['email'].widget.attrs.update({
             'placeholder': 'Email',
         })
+
     class Meta:
         model = CustomUser
         fields = ['first_name', 'last_name', 'email']
+
+
+class UserPasswordEditForm(PasswordChangeForm):
+
+    class Meta:
+        model = CustomUser
+
+    def __init__(self, user, *args, **kwargs):
+        super().__init__(user, *args, **kwargs)
+        self.fields['old_password'].widget.attrs.update({
+            'placeholder': 'Stare haslo',
+        })
+        self.fields['new_password1'].widget.attrs.update({
+            'placeholder': 'Nowe haslo',
+        })
+        self.fields['new_password2'].widget.attrs.update({
+            'placeholder': 'Powtorz nowe haslo',
+        })
