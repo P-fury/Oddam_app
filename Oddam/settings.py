@@ -101,13 +101,6 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'Europe/Tallinn'
-
-USE_I18N = True
-
-USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
@@ -121,3 +114,12 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'oddam_app/static')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'user.CustomUser'
+
+LANGUAGE_CODE = 'pl'  # Ustawienie języka na polski
+TIME_ZONE = 'Europe/Warsaw'  # Można również ustawić odpowiednią strefę czasow
+USE_I18N = True  # Włączenie internacjonalizacji
+USE_L10N = True  # Włączenie lokalizacji
+USE_TZ = True  # Włączenie obsługi stref czasowych
+
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_FILE_PATH = 'oddam_app/emails/'

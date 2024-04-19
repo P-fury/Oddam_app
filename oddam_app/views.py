@@ -1,22 +1,22 @@
-from datetime import datetime, time, date
-from time import mktime
+from datetime import date
 
 from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout, get_user_model
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import authenticate, login, logout, get_user_model, update_session_auth_hash
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
+from django.contrib.auth.tokens import default_token_generator
 from django.core.paginator import Paginator
-from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
-from django.urls import reverse
+from django.urls import reverse_lazy, reverse
+from django.utils.http import urlsafe_base64_decode
 from django.views import View
-from django.views.decorators.http import require_POST
-from django.views.generic import TemplateView
 
-from oddam_app.forms import UserForm
+from oddam_app.forms import UserEditForm, UserPasswordEditForm
 from oddam_app.models import Donation, Institution, Category
 from user.forms import CustomUserCreationForm
 from user.models import CustomUser
+from user.utils import send_activation_email
 
 
 # Create your views here.
@@ -37,6 +37,7 @@ class RegisterView(View):
 
             user = CustomUser.objects.create_user(username=email, email=email, password=password, first_name=first_name,
                                                   last_name=last_name)
+            send_activation_email(user,request)
             return redirect('login')
 
         else:
@@ -93,6 +94,51 @@ class UserSiteView(View):
         donation.is_taken = is_taken
         donation.save()
         return JsonResponse({'success': True, 'message': 'Stan darowizny został pomyślnie zaktualizowany.'})
+
+
+class UserEditView(LoginRequiredMixin, View):
+    login_url = reverse_lazy('login-user')
+
+    def get(self, request):
+        userEdit = UserEditForm(instance=request.user)
+        userPasswordEditForm = UserPasswordEditForm(user=request.user)
+        messages.add_message(request, messages.INFO, "aby zmienic dane podaj haslo", extra_tags='edit_data')
+        return render(request, 'user-edit.html', {'userEdit': userEdit, 'userPasswordEditForm': userPasswordEditForm})
+
+    def post(self, request):
+        url1 = reverse('user_edit') + '#user_data'
+        url2 = reverse('user_edit') + '#user_password'
+        if 'edit_data' in request.POST:
+            password = request.POST.get("confirm-password")
+            if request.user.check_password(password):
+                name = request.POST.get("first_name")
+                lastname = request.POST.get("last_name")
+                email = request.POST.get("email")
+                user = CustomUser.objects.get(id=request.user.id)
+                user.first_name = name
+                user.last_name = lastname
+                user.email = email
+                user.save()
+                messages.add_message(request, messages.INFO, "dane zmienione", extra_tags='edit_data')
+                return redirect(url1)
+            else:
+                messages.add_message(request, messages.INFO, "haslo niepoprawne", extra_tags='edit_data')
+                return redirect(url1)
+
+        elif 'change_password' in request.POST:
+            user_password_edit_form = UserPasswordEditForm(request.user, request.POST)
+            if user_password_edit_form.is_valid():
+                user = user_password_edit_form.save()
+                update_session_auth_hash(request, user)
+                messages.add_message(request, messages.INFO, "Hasło zmienione", extra_tags='edit_password')
+                return redirect(url2)
+            else:
+                for field in user_password_edit_form:
+                    for error in field.errors:
+                        messages.error(request, f"{field.label}: {error}", extra_tags='edit_password')
+                        return redirect(url2)
+
+        return redirect('user_edit')
 
 
 class LandingPageView(View):
@@ -158,3 +204,19 @@ class AddDonationView(View):
 class ConfirmationView(View):
     def get(self, request):
         return render(request, 'form-confirmation.html')
+
+
+def activate(request, uidb64, token):
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = CustomUser.objects.get(pk=uid)
+    except(TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        user.is_active = True
+        user.save()
+        login(request, user)
+        return redirect('index')
+    else:
+        return render(request, 'activation_invalid.html')

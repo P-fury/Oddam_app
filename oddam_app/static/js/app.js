@@ -84,7 +84,6 @@ document.addEventListener("DOMContentLoaded", function () {
             this.init();
         }
 
-        auth_permission
 
         init() {
             this.createElements();
@@ -487,4 +486,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-});
+
+})
+;

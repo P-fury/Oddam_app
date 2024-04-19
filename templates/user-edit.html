@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block content %}
+    <!doctype html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport"
+              content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <meta name="csrf-token" content="{{ csrf_token }}">
+        <title>User</title>
+        <link rel="stylesheet" href="{% static 'css/style.css' %}"/>
+    </head>
+    <body>
+    {% include 'nav.html' %}
+    <h2 id="user_data">Użytkownik</h2>
+
+    {% if messages %}
+
+        {% for message in messages %}
+            {% if 'edit_data' in message.tags %}
+            <div class="{{ message.tags }}">{{ message }}</div>
+            {% endif %}
+        {% endfor %}
+
+    {% endif %}
+    <form method="POST" class="open-edit" id="edit_data_form">
+        {% csrf_token %}
+        <p>Imię: {{ userEdit.first_name }}</p>
+        <p>Nazwisko: {{ userEdit.last_name }}</p>
+        <p>Email: {{ userEdit.email }}</p>
+        <p>Haslo: <input type="password" name="confirm-password"></p>
+        <button type='submit' class="btn" name="edit_data">edytuj</button>
+    </form>
+
+        <h2 id="user_password">Zmiana hasła</h2>
+     {% if messages %}
+
+        {% for message in messages %}
+            {% if 'edit_password' in message.tags %}
+            <div{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</div>
+            {% endif %}
+        {% endfor %}
+
+    {% endif %}
+    <form method="POST" class="open-edit" id="change_password_form">
+        {% csrf_token %}
+        {{ userPasswordEditForm.old_password }}
+        {{ userPasswordEditForm.new_password1 }}
+        {{ userPasswordEditForm.new_password2 }}
+        <button type="submit" class="btn" name="change_password">Zmień hasło</button>
+    </form>
+
+    </body>
+
+{% endblock content %}
