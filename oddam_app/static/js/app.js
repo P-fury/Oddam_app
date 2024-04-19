@@ -487,4 +487,36 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-});
+
+    function verifyPassowrd() {
+        const form = document.getElementById('password_confirm');
+        const formData = new FormData(form);
+
+        fetch('/', {
+            method: 'POST',
+            body: formData,
+            credentials: 'same-origin'
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Success:', data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+
+
+
+    const passwordButton = document.getElementById('password_button')
+    passwordButton.addEventListener('click', function (e){
+        verifyPassowrd()
+    });
+
+})
+;

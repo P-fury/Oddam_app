@@ -4,16 +4,17 @@ from time import mktime
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.views.decorators.http import require_POST
 from django.views.generic import TemplateView
 
-from oddam_app.forms import UserForm
+from oddam_app.forms import UserForm, UserEditForm
 from oddam_app.models import Donation, Institution, Category
 from user.forms import CustomUserCreationForm
 from user.models import CustomUser
@@ -93,6 +94,17 @@ class UserSiteView(View):
         donation.is_taken = is_taken
         donation.save()
         return JsonResponse({'success': True, 'message': 'Stan darowizny został pomyślnie zaktualizowany.'})
+
+
+class UserEditView(LoginRequiredMixin, View):
+    login_url = reverse_lazy('login-user')
+
+    def get(self, request):
+        userEdit = UserEditForm(instance=request.user)
+        return render(request, 'user-edit.html', {'userEdit': userEdit})
+
+
+
 
 
 class LandingPageView(View):
