@@ -1854,3 +1854,24 @@ USER INFO PAGE
     font-size: 22px;
 }
 
+.open-edit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 50px;
+}
+
+.open-edit input {
+    font-size: 18px;
+    margin-top: 20px;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.open-edit button {
+    font-size: 18px;
+    margin-top: 20px;
+    margin-left: auto;
+    margin-right: auto;
+}
