@@ -10,6 +10,7 @@ from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views import View
+from django.views.decorators.http import require_POST
 from django.views.generic import TemplateView
 
 from oddam_app.forms import UserForm
@@ -73,7 +74,7 @@ class UserSiteView(View):
     def get(self, request):
         User = get_user_model()
         user = User.objects.get(pk=request.user.pk)
-        donations = Donation.objects.filter(user=user).order_by('pick_up_date')
+        donations = Donation.objects.filter(user=user).order_by('is_taken', 'pick_up_date')
         number_of_bags = sum([bags.quantity for bags in donations])
 
         context = {
@@ -83,7 +84,15 @@ class UserSiteView(View):
             'today': date.today(),
 
         }
-        return render(request, 'user-site.html', context )
+        return render(request, 'user-site.html', context)
+
+    def post(self, request):
+        donation_id = request.POST.get('donation_id')
+        is_taken = request.POST.get('is_taken') == 'true'
+        donation = Donation.objects.get(id=donation_id)
+        donation.is_taken = is_taken
+        donation.save()
+        return JsonResponse({'success': True, 'message': 'Stan darowizny został pomyślnie zaktualizowany.'})
 
 
 class LandingPageView(View):

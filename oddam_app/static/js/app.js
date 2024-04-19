@@ -84,6 +84,8 @@ document.addEventListener("DOMContentLoaded", function () {
             this.init();
         }
 
+        auth_permission
+
         init() {
             this.createElements();
             this.addEvents();
@@ -265,167 +267,224 @@ document.addEventListener("DOMContentLoaded", function () {
     if (form !== null) {
         new FormSteps(form);
     }
-});
 
-/**
- * Category selector
- * Creating list of selected cagtegories.
- * Using filter function
- */
-const categorycheckboxes = document.querySelectorAll('input[name="categories"]');
-const selectedCategories = [];
-categorycheckboxes.forEach(function (checkbox) {
-    checkbox.addEventListener("change", function () {
-        if (this.checked) {
-            selectedCategories.push(this.value);
+
+    /**
+     * Category selector
+     * Creating list of selected cagtegories.
+     * Using filter function
+     */
+    const categorycheckboxes = document.querySelectorAll('input[name="categories"]');
+    const selectedCategories = [];
+    categorycheckboxes.forEach(function (checkbox) {
+        checkbox.addEventListener("change", function () {
+            if (this.checked) {
+                selectedCategories.push(this.value);
+
+            } else {
+                const index = selectedCategories.indexOf(this.value);
+                if (index !== -1) {
+                    selectedCategories.splice(index, 1)
+                }
+
+            }
+            filterInstCategories(selectedCategories)
+        })
+    })
+
+    /**
+     * For every hidden data-value if equal selected checkbox
+     * Change visibility from none to block
+     */
+    function filterInstCategories(categories) {
+        const institutions = document.querySelectorAll('[data-step="3"] .form-group--checkbox');
+        institutions.forEach(function (institution) {
+            const categoriesInInstitution = institution.querySelectorAll('.categories_of_institutions');
+            let showInstitution = false;
+            categoriesInInstitution.forEach(function (category) {
+                if (categories.includes(category.dataset.value)) {
+                    showInstitution = true;
+                }
+            });
+            if (showInstitution) {
+                institution.style.display = 'block';
+
+            } else {
+                institution.style.display = 'none';
+            }
+        })
+    }
+
+    /**
+     * remember bags
+     */
+    function getNumberOfBags() {
+        const bagsInput = document.querySelector('input[name="bags"]');
+
+
+        if (bagsInput) {
+
+            return parseInt(bagsInput.value);
 
         } else {
-            const index = selectedCategories.indexOf(this.value);
-            if (index !== -1) {
-                selectedCategories.splice(index, 1)
+            return null;
+        }
+    }
+
+
+    /**
+     * update summary of bags
+     */
+
+    function updateSummaryBags(numberOfBags) {
+        const summaryTextElement = document.querySelector('.form-section .summary--text');
+        if (summaryTextElement) {
+            if (numberOfBags === 1) {
+                summaryTextElement.textContent = `${numberOfBags} worek z ${selectedCategories}`;
+            } else {
+                summaryTextElement.textContent = `${numberOfBags} worki z ${selectedCategories}`;
             }
 
         }
-        filterInstCategories(selectedCategories)
-    })
-})
+    }
 
-/**
- * For every hidden data-value if equal selected checkbox
- * Change visibility from none to block
- */
-function filterInstCategories(categories) {
-    const institutions = document.querySelectorAll('[data-step="3"] .form-group--checkbox');
-    institutions.forEach(function (institution) {
-        const categoriesInInstitution = institution.querySelectorAll('.categories_of_institutions');
-        let showInstitution = false;
-        categoriesInInstitution.forEach(function (category) {
-            if (categories.includes(category.dataset.value)) {
-                showInstitution = true;
-            }
+    /**
+     * upate summary of organizaion
+     */
+    function updateSummaryAndRetrieveOrganizationName() {
+        const organizationChoice = document.querySelectorAll('input[name="organization"]');
+        const summaryTextElements = document.querySelectorAll('.summary--text');
+        const organizationType = document.querySelector('.type-of-organization').innerText
+
+        organizationChoice.forEach(radio => {
+            radio.addEventListener('change', function () {
+                const selectedOrganizationName = this.parentElement.querySelector('.title').innerText;
+                if (selectedOrganizationName) {
+                    summaryTextElements.forEach((element, index) => {
+                        if (index === 1) {
+                            element.textContent = `Dla ${organizationType} "${selectedOrganizationName}"`;
+                        }
+                    });
+                }
+            });
         });
-        if (showInstitution) {
-            institution.style.display = 'block';
-
-        } else {
-            institution.style.display = 'none';
-        }
-    })
-}
-
-/**
- * remember bags
- */
-function getNumberOfBags() {
-    const bagsInput = document.querySelector('input[name="bags"]');
-
-
-    if (bagsInput) {
-
-        return parseInt(bagsInput.value);
-
-    } else {
-        return null;
     }
-}
 
+    function pickupFormSaveAndWrite() {
+        const nextButton = document.querySelector('.form--steps [data-step="4"] .next-step');
+        const pickupForm = document.getElementById('pickup_form');
+        let addressDict = {};
+        let dateScheduleDict = {}
 
-/**
- * update summary of bags
- */
+        nextButton.addEventListener('click', function () {
+            addressDict.address = pickupForm.querySelector('input[name="address"]').value;
+            addressDict.city = pickupForm.querySelector('input[name="city"]').value;
+            addressDict.postcode = pickupForm.querySelector('input[name="postcode"]').value;
+            addressDict.phone = pickupForm.querySelector('input[name="phone"]').value;
+            dateScheduleDict.date = pickupForm.querySelector('input[name="data"]').value;
+            dateScheduleDict.time = pickupForm.querySelector('input[name="time"]').value;
+            dateScheduleDict.moreInfo = pickupForm.querySelector('textarea[name="more_info"]').value;
+            console.log(addressDict, dateScheduleDict)
+            writeFromPickupDict(addressDict, dateScheduleDict);
+        });
 
-function updateSummaryBags(numberOfBags) {
-    const summaryTextElement = document.querySelector('.form-section .summary--text');
-    if (summaryTextElement) {
-        if (numberOfBags === 1) {
-            summaryTextElement.textContent = `${numberOfBags} worek z ${selectedCategories}`;
-        } else {
-            summaryTextElement.textContent = `${numberOfBags} worki z ${selectedCategories}`;
-        }
-
+        return addressDict, dateScheduleDict;
     }
-}
 
-/**
- * upate summary of organizaion
- */
-function updateSummaryAndRetrieveOrganizationName() {
-    const organizationChoice = document.querySelectorAll('input[name="organization"]');
-    const summaryTextElements = document.querySelectorAll('.summary--text');
-    const organizationType = document.querySelector('.type-of-organization').innerText
+    function writeFromPickupDict(addressDict, dateScheduleDict) { // Dodanie formDict jako argumentu
+        const firstRow = document.querySelectorAll('.form-section--columns > .form-section--column:first-child li');
+        const secondRow = document.querySelectorAll('.form-section--columns > .form-section--column:nth-child(2) li');
+        firstRow.forEach((item, index) => {
+            const keys = Object.keys(addressDict);
+            item.textContent = addressDict[keys[index]];
 
-    organizationChoice.forEach(radio => {
-        radio.addEventListener('change', function () {
-            const selectedOrganizationName = this.parentElement.querySelector('.title').innerText;
-            if (selectedOrganizationName) {
-                summaryTextElements.forEach((element, index) => {
-                    if (index === 1) {
-                        element.textContent = `Dla ${organizationType} "${selectedOrganizationName}"`;
+            secondRow.forEach((item, index) => {
+                const keys = Object.keys(dateScheduleDict)
+                item.textContent = dateScheduleDict[keys[index]];
+            })
+        });
+    }
+
+    var whole_form = document.getElementById('whole_form');
+    if (whole_form) {
+
+        var formData = new FormData(whole_form);
+
+        console.log(formData)
+
+        fetch('/adddonation/', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                window.location.href = "/confirm/"
+                return response.json();
+            })
+            .then(data => {
+                console.log('Odpowiedź z serwera:', data);
+            })
+            .catch(error => {
+                console.error('Błąd podczas wysyłania żądania:', error);
+            });
+    }
+
+    /**
+     * is_taken feature
+     */
+
+
+    document.querySelectorAll('input[type="checkbox"][id^="is_taken_"]').forEach(function (checkbox) {
+        if (checkbox.checked) {
+            checkbox.closest('tr').style.backgroundColor = 'rgb(241, 236, 230)';
+        }
+        checkbox.addEventListener('change', function (e) {
+            const row = checkbox.closest('tr');
+            const table = row.parentNode;
+
+            const donationId = checkbox.dataset.donationId;
+            const isChecked = checkbox.checked;
+            const formData = new FormData();
+            formData.append('donation_id', donationId);
+            formData.append('is_taken', isChecked);
+            console.log(formData)
+
+
+            function getCsrfToken() {
+                const tokenElement = document.querySelector('meta[name="csrf-token"]');
+                return tokenElement.getAttribute('content');
+            }
+
+            const csrfToken = getCsrfToken();
+
+            fetch('', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': csrfToken
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success === true) {
+                        console.log('Aktualizacja is_taken pomyślna');
+                    } else {
+                        console.error('Błąd aktualizacji is_taken', data);
                     }
+                })
+                .catch(error => {
+                    console.error('Błąd wysyłania AJAX', error);
                 });
+
+            if (checkbox.checked) {
+                table.appendChild(row);
+                row.style.backgroundColor = 'rgb(241, 236, 230)';
+            } else {
+                row.style.backgroundColor = 'white';
             }
         });
     });
-}
 
-function pickupFormSaveAndWrite() {
-    const nextButton = document.querySelector('.form--steps [data-step="4"] .next-step');
-    const pickupForm = document.getElementById('pickup_form');
-    let addressDict = {};
-    let dateScheduleDict = {}
-
-    nextButton.addEventListener('click', function () {
-        addressDict.address = pickupForm.querySelector('input[name="address"]').value;
-        addressDict.city = pickupForm.querySelector('input[name="city"]').value;
-        addressDict.postcode = pickupForm.querySelector('input[name="postcode"]').value;
-        addressDict.phone = pickupForm.querySelector('input[name="phone"]').value;
-        dateScheduleDict.date = pickupForm.querySelector('input[name="data"]').value;
-        dateScheduleDict.time = pickupForm.querySelector('input[name="time"]').value;
-        dateScheduleDict.moreInfo = pickupForm.querySelector('textarea[name="more_info"]').value;
-        console.log(addressDict, dateScheduleDict)
-        writeFromPickupDict(addressDict, dateScheduleDict);
-    });
-
-    return addressDict, dateScheduleDict;
-}
-
-function writeFromPickupDict(addressDict, dateScheduleDict) { // Dodanie formDict jako argumentu
-    const firstRow = document.querySelectorAll('.form-section--columns > .form-section--column:first-child li');
-    const secondRow = document.querySelectorAll('.form-section--columns > .form-section--column:nth-child(2) li');
-    firstRow.forEach((item, index) => {
-        const keys = Object.keys(addressDict);
-        item.textContent = addressDict[keys[index]];
-
-        secondRow.forEach((item, index) => {
-            const keys = Object.keys(dateScheduleDict)
-            item.textContent = dateScheduleDict[keys[index]];
-        })
-    });
-}
-
-document.getElementById("whole_form").addEventListener("submit", function (event) {
-    event.preventDefault(); // Zapobiega domyślnej akcji formularza (czyli przeładowania strony)
-
-    var form = event.target;
-    var formData = new FormData(form);
-
-    console.log(formData)
-
-    fetch('/adddonation/', {
-        method: 'POST',
-        body: formData
-    })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            window.location.href = "/confirm/"
-            return response.json();
-        })
-        .then(data => {
-            console.log('Odpowiedź z serwera:', data);
-        })
-        .catch(error => {
-            console.error('Błąd podczas wysyłania żądania:', error);
-        });
 });
