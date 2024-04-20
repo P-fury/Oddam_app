@@ -259,8 +259,9 @@ class AddDonationView(View):
 
     def post(self, request):
         if request.method == "POST":
+            print(request.POST)
             form = request.POST
-            inst = Institution.objects.get(name=form['organization'])
+            inst = Institution.objects.get(id=form['organization'])
             categories = Category.objects.filter(name__in=form.getlist('categories'))
             date = form['data']
             time = form['time']

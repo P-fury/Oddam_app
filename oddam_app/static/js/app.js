@@ -1,4 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
+    // zmienna do list wyboru kategorii przesylaania formularza
+    const selectedCategories = [];
     /**
      * HomePage - Help section
      */
@@ -365,7 +367,7 @@ document.addEventListener("DOMContentLoaded", function () {
      * Using filter function
      */
     const categorycheckboxes = document.querySelectorAll('input[name="categories"]');
-    let selectedCategories = [];
+
     categorycheckboxes.forEach(function (checkbox) {
         checkbox.addEventListener("change", function () {
             if (this.checked) {
@@ -403,7 +405,8 @@ document.addEventListener("DOMContentLoaded", function () {
             } else {
                 institution.style.display = 'none';
             }
-        })
+
+        });
     }
 
     /**
@@ -492,10 +495,11 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    const whole_form = document.getElementById('whole_form');
-    if (whole_form) {
+    document.getElementById("whole_form").addEventListener("submit", function (event) {
+        event.preventDefault(); // Zapobiega domyślnej akcji formularza (czyli przeładowania strony)
 
-        const formData = new FormData(whole_form);
+        var form = event.target;
+        var formData = new FormData(form);
 
         console.log(formData)
 
@@ -516,7 +520,8 @@ document.addEventListener("DOMContentLoaded", function () {
             .catch(error => {
                 console.error('Błąd podczas wysyłania żądania:', error);
             });
-    }
+    })
+
 
     /**
      * is_taken feature
