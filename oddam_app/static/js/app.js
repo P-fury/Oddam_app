@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
+
     /**
      * HomePage - Help section
      */
@@ -334,11 +335,8 @@ document.addEventListener("DOMContentLoaded", function () {
             this.$step.parentElement.hidden = this.currentStep >= 6;
 
             // TODO: get data from inputs and show them in summary
-            const numberOfBags = getNumberOfBags();
-            updateSummaryBags(numberOfBags);
-            updateSummaryAndRetrieveOrganizationName();
-            pickupFormSaveAndWrite();
-            // writeFromPickupDict()
+
+
         }
 
         /**
@@ -364,8 +362,17 @@ document.addEventListener("DOMContentLoaded", function () {
      * Creating list of selected cagtegories.
      * Using filter function
      */
-    const categorycheckboxes = document.querySelectorAll('input[name="categories"]');
+        // zmienna do list wyboru kategorii przesylaania formularza
     const selectedCategories = [];
+
+    const numberOfBags = getNumberOfBags();
+    updateSummaryBags(numberOfBags);
+    updateSummaryAndRetrieveOrganizationName();
+    pickupFormSaveAndWrite();
+
+
+    const categorycheckboxes = document.querySelectorAll('input[name="categories"]');
+
     categorycheckboxes.forEach(function (checkbox) {
         checkbox.addEventListener("change", function () {
             if (this.checked) {
@@ -381,6 +388,7 @@ document.addEventListener("DOMContentLoaded", function () {
             filterInstCategories(selectedCategories)
         })
     })
+    console.log(selectedCategories)
 
     /**
      * For every hidden data-value if equal selected checkbox
@@ -402,7 +410,8 @@ document.addEventListener("DOMContentLoaded", function () {
             } else {
                 institution.style.display = 'none';
             }
-        })
+
+        });
     }
 
     /**
@@ -410,12 +419,8 @@ document.addEventListener("DOMContentLoaded", function () {
      */
     function getNumberOfBags() {
         const bagsInput = document.querySelector('input[name="bags"]');
-
-
         if (bagsInput) {
-
             return parseInt(bagsInput.value);
-
         } else {
             return null;
         }
@@ -495,10 +500,11 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    var whole_form = document.getElementById('whole_form');
-    if (whole_form) {
+    document.getElementById("whole_form").addEventListener("submit", function (event) {
+        event.preventDefault(); // Zapobiega domyślnej akcji formularza (czyli przeładowania strony)
 
-        var formData = new FormData(whole_form);
+        var form = event.target;
+        var formData = new FormData(form);
 
         console.log(formData)
 
@@ -519,7 +525,8 @@ document.addEventListener("DOMContentLoaded", function () {
             .catch(error => {
                 console.error('Błąd podczas wysyłania żądania:', error);
             });
-    }
+    })
+
 
     /**
      * is_taken feature
