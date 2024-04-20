@@ -365,7 +365,7 @@ document.addEventListener("DOMContentLoaded", function () {
      * Using filter function
      */
     const categorycheckboxes = document.querySelectorAll('input[name="categories"]');
-    const selectedCategories = [];
+    let selectedCategories = [];
     categorycheckboxes.forEach(function (checkbox) {
         checkbox.addEventListener("change", function () {
             if (this.checked) {
@@ -381,6 +381,7 @@ document.addEventListener("DOMContentLoaded", function () {
             filterInstCategories(selectedCategories)
         })
     })
+    console.log(selectedCategories)
 
     /**
      * For every hidden data-value if equal selected checkbox
@@ -410,12 +411,8 @@ document.addEventListener("DOMContentLoaded", function () {
      */
     function getNumberOfBags() {
         const bagsInput = document.querySelector('input[name="bags"]');
-
-
         if (bagsInput) {
-
             return parseInt(bagsInput.value);
-
         } else {
             return null;
         }
@@ -495,10 +492,10 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    var whole_form = document.getElementById('whole_form');
+    const whole_form = document.getElementById('whole_form');
     if (whole_form) {
 
-        var formData = new FormData(whole_form);
+        const formData = new FormData(whole_form);
 
         console.log(formData)
 

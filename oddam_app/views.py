@@ -150,19 +150,19 @@ class LandingPageView(View):
         # PAGINATOR
 
         # FUNDATIONS
-        fundations = institutions.filter(type='fundacja')
+        fundations = institutions.filter(type='fundacja').order_by('name')
         paginator_fundation = Paginator(fundations, per_page=5)
         page = request.GET.get('page')
         paginator_fundation = paginator_fundation.get_page(page)
 
         # ORGANIZATION
-        organizations = institutions.filter(type='organizacja_pozarządowa')
+        organizations = institutions.filter(type='organizacja_pozarządowa').order_by('name')
         paginator_organizations = Paginator(organizations, per_page=5)
         pageorg = request.GET.get('page')
         paginator_organizations = paginator_organizations.get_page(pageorg)
 
         # LOCAL
-        locals = institutions.filter(type='zbiórka_lokalna')
+        locals = institutions.filter(type='zbiórka_lokalna').order_by('name')
         paginator_locals = Paginator(locals, per_page=5)
         pagelocal = request.GET.get('page')
         paginator_locals = paginator_locals.get_page(pagelocal)
