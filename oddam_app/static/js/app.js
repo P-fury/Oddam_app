@@ -1,6 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-    // zmienna do list wyboru kategorii przesylaania formularza
-    const selectedCategories = [];
+
     /**
      * HomePage - Help section
      */
@@ -336,11 +335,8 @@ document.addEventListener("DOMContentLoaded", function () {
             this.$step.parentElement.hidden = this.currentStep >= 6;
 
             // TODO: get data from inputs and show them in summary
-            const numberOfBags = getNumberOfBags();
-            updateSummaryBags(numberOfBags);
-            updateSummaryAndRetrieveOrganizationName();
-            pickupFormSaveAndWrite();
-            // writeFromPickupDict()
+
+
         }
 
         /**
@@ -366,6 +362,15 @@ document.addEventListener("DOMContentLoaded", function () {
      * Creating list of selected cagtegories.
      * Using filter function
      */
+        // zmienna do list wyboru kategorii przesylaania formularza
+    const selectedCategories = [];
+
+    const numberOfBags = getNumberOfBags();
+    updateSummaryBags(numberOfBags);
+    updateSummaryAndRetrieveOrganizationName();
+    pickupFormSaveAndWrite();
+
+
     const categorycheckboxes = document.querySelectorAll('input[name="categories"]');
 
     categorycheckboxes.forEach(function (checkbox) {
