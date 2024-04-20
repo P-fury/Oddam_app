@@ -32,4 +32,7 @@ urlpatterns = [
 
     path('activate/<uidb64>/<token>/', views.activate, name='activate'),
 
+    path('api/datafund/', views.pag_fund_view),
+    path('api/dataorg/', views.pag_org_view),
+    path('api/datalocal/', views.pag_org_view),
 ]
