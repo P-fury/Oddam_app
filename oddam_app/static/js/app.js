@@ -33,6 +33,23 @@ document.addEventListener("DOMContentLoaded", function () {
             this.$el.addEventListener("click", e => {
                 if (e.target.classList.contains("btn") && e.target.parentElement.parentElement.classList.contains("help--slides-pagination")) {
                     this.changePage(e);
+                    if (e.target.classList.contains("fundation-btn")) {
+                        // USUWANIE ACTIVE I DODAWANIE DO KLIKNIETEGO
+                        delActiveAddActive(e)
+                        e.target.classList.add('active');
+                        const page = e.target.dataset.page;
+                        loadDatafund(page);
+                    } else if (e.target.classList.contains('organization-btn')) {
+                        // USUWANIE ACTIVE I DODAWANIE DO KLIKNIETEGO
+                        delActiveAddActive(e)
+                        const page = e.target.dataset.page;
+                        loadDataorg(page);
+                    } else if (e.target.classList.contains('local-btn')) {
+                        // USUWANIE ACTIVE I DODAWANIE DO KLIKNIETEGO
+                        delActiveAddActive(e)
+                        const page = e.target.dataset.page;
+                        loadDatalocal(page);
+                    }
                 }
             });
 
@@ -66,6 +83,80 @@ document.addEventListener("DOMContentLoaded", function () {
             e.preventDefault();
             const page = e.target.dataset.page;
             console.log(page);
+
+
+            3
+        }
+    }
+
+    function loadDatafund(page) {
+        fetch(`/api/datafund/?page=${page}`)
+            .then(response => response.json())
+            .then(data => {
+                updateFundationsList(data.fundations);
+            })
+            .catch(error => console.error('Error fetching data:', error));
+    }
+
+    function updateFundationsList(fundations) {
+        const lists = document.querySelectorAll('#fundation');
+        if (lists.length > 0) {
+            const list = lists[0];
+            list.innerHTML = '';  // Czyścimy listę
+
+            fundations.forEach(fundation => {
+                // CREATING PAGE FOR PAGINATOR
+                drawPaginatorPage(list, fundation)
+            });
+        } else {
+            console.error('No element with the class "help--slides-items" found.');
+        }
+    }
+
+
+    function loadDataorg(page) {
+        fetch(`/api/dataorg/?page=${page}`)
+            .then(response => response.json())
+            .then(data => {
+                updateOrganizationList(data.organizations);
+            })
+            .catch(error => console.error('Error fetching data:', error));
+    }
+
+    function updateOrganizationList(organizations) {
+        const lists = document.querySelectorAll('#organization');
+        if (lists.length > 0) {
+            const list = lists[0];
+            list.innerHTML = '';  // Czyścimy listę
+            organizations.forEach(organization => {
+                // CREATING PAGE FOR PAGINATOR
+                drawPaginatorPage(list, organization)
+            });
+        } else {
+            console.error('No element with the class "help--slides-items" found.');
+        }
+    }
+
+    function loadDatalocal(page) {
+        fetch(`/api/datalocal/?page=${page}`)
+            .then(response => response.json())
+            .then(data => {
+                updateOrganizationList(data.locals);
+            })
+            .catch(error => console.error('Error fetching data:', error));
+    }
+
+    function updateLocalsList(locals) {
+        const lists = document.querySelectorAll('#local');
+        if (lists.length > 0) {
+            const list = lists[0];
+            list.innerHTML = '';  // Czyścimy listę
+            locals.forEach(local => {
+                // CREATING PAGE FOR PAGINATOR
+                drawPaginatorPage(list, local)
+            });
+        } else {
+            console.error('No element with the class "help--slides-items" found.');
         }
     }
 
@@ -486,6 +577,33 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
+    /**
+     * DELETE ALL ACTIVE CLASS
+     * ADDING ACIVE TO CLICKEDONE
+     */
+    function delActiveAddActive(e) {
+        const buttons = e.target.parentElement.parentElement.querySelectorAll('.btn');
+        buttons.forEach(button => button.classList.remove('active'));
+        e.target.classList.add('active');
+    }
 
+    /**
+     * CREATING LIST OF ITEMS FOR PAGINATOR PAGES
+     */
+    function drawPaginatorPage(list, institutionType) {
+        const li = document.createElement('li')
+        const item = document.createElement('div');
+        item.classList.add("col")
+        item.innerHTML = `<div class="title">${institutionType.name}</div><div class="subtitle">${institutionType.description}</div>`;
+        const item2 = document.createElement('div')
+        item2.classList.add("col")
+        const text = document.createElement('div')
+        text.classList.add('text')
+        text.textContent = institutionType.categories
+        item2.appendChild(text)
+        li.appendChild(item)
+        li.appendChild(item2)
+        list.appendChild(li);
+    };
 })
 ;

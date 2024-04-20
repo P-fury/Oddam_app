@@ -37,7 +37,7 @@ class RegisterView(View):
 
             user = CustomUser.objects.create_user(username=email, email=email, password=password, first_name=first_name,
                                                   last_name=last_name)
-            send_activation_email(user,request)
+            send_activation_email(user, request)
             return redirect('login')
 
         else:
@@ -142,29 +142,108 @@ class UserEditView(LoginRequiredMixin, View):
 
 
 class LandingPageView(View):
-    def get(self, request):
+    def get(self, request, page=1):
         amount_of_bags = sum([item.quantity for item in Donation.objects.all()])
         number_of_institution = Institution.objects.all().count()
-
         institutions = Institution.objects.all()
-        fundations = institutions.filter(type='fundacja')
-        # organizations = institutions.filter(type='organizacja_pozarządowa')
-        # locals = institutions.filter(type='zbiórka_lokalna')
 
-        fundations_paginator = Paginator(fundations, 5)
-        fundations_page_number = request.GET.get('page')
-        fundation_page_obj = fundations_paginator.get_page(fundations_page_number)
+        # PAGINATOR
+
+        # FUNDATIONS
+        fundations = institutions.filter(type='fundacja')
+        paginator_fundation = Paginator(fundations, per_page=5)
+        page = request.GET.get('page')
+        paginator_fundation = paginator_fundation.get_page(page)
+
+        # ORGANIZATION
+        organizations = institutions.filter(type='organizacja_pozarządowa')
+        paginator_organizations = Paginator(organizations, per_page=5)
+        pageorg = request.GET.get('page')
+        paginator_organizations = paginator_organizations.get_page(pageorg)
+
+        # LOCAL
+        locals = institutions.filter(type='zbiórka_lokalna')
+        paginator_locals = Paginator(locals, per_page=5)
+        pagelocal = request.GET.get('page')
+        paginator_locals = paginator_locals.get_page(pagelocal)
 
         context = {'amount_of_bags': amount_of_bags,
                    'number_of_institution': number_of_institution,
-                   # 'fundations': fundations,
-                   # 'organizations': organizations,
-                   # 'locals': locals,
-                   'fundation_page_obj': fundation_page_obj,
-
+                   'fundations': fundations,
+                   'paginator_fundation': paginator_fundation,
+                   'paginator_organizations': paginator_organizations,
+                   'paginator_locals': paginator_locals,
                    }
+
         return render(request, 'index.html',
                       context)
+
+
+def pag_fund_view(request):
+    institutions = Institution.objects.all()
+    fundations = institutions.filter(type='fundacja')
+    page = request.GET.get('page', 1)
+    paginator_fundation = Paginator(fundations, per_page=5)
+    fundations_page = paginator_fundation.get_page(page)
+
+    fundations_data = [{
+        'id': fundation.id,
+        'name': fundation.name,
+        'description': fundation.description,
+        'categories': ', '.join([category.name for category in fundation.categories.all()])
+    } for fundation in fundations_page]
+
+    data = {
+        'fundations': fundations_data,
+        'current_page': fundations_page.number,
+        'num_pages': fundations_page.paginator.num_pages,
+
+    }
+    return JsonResponse(data)
+
+
+def pag_org_view(request):
+    institutions = Institution.objects.all()
+    organizations = institutions.filter(type='organizacja_pozarządowa')
+    page = request.GET.get('page', 1)
+    paginator_organization = Paginator(organizations, per_page=5)
+    organizations_page = paginator_organization.get_page(page)
+
+    organizations_data = [{
+        'id': organization.id,
+        'name': organization.name,
+        'description': organization.description,
+        'categories': ", ".join([category.name for category in organization.categories.all()])
+    } for organization in organizations_page]
+
+    data = {
+        'organizations': organizations_data,
+        'current_page': organizations_page.number,
+        'num_pages': organizations_page.paginator.num_pages,
+    }
+    return JsonResponse(data)
+
+
+def pag_local_view(request):
+    institutions = Institution.objects.all()
+    locals = institutions.filter(type='zbiórka_lokalna')
+    page = request.GET.get('page', 5)
+    paginator_local = Paginator(locals, per_page=5)
+    locals_page = paginator_local.get_page(page)
+
+    locals_data = [{
+        'id': local.id,
+        'name': local.name,
+        'description': local.description,
+        'categories': ", ".join([category.name for category in local.categories.all()])
+    } for local in locals_page]
+
+    data = {
+        'organizations': locals_data,
+        'current_page': locals_page.number,
+        'num_pages': locals_page.paginator.num_pages,
+    }
+    return JsonResponse(data)
 
 
 class AddDonationView(View):
