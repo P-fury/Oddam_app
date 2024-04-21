@@ -1,4 +1,4 @@
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm, PasswordChangeForm, SetPasswordForm
 
 from user.models import CustomUser
 
@@ -25,3 +25,7 @@ class CustomUserCreationForm(UserCreationForm):
         self.fields['password2'].widget.attrs.update({
             'placeholder': 'Powtórz hasło',
         })
+
+
+class CustomUserChangeForm(SetPasswordForm):
+    pass

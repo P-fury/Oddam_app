@@ -47,7 +47,6 @@ class UserEditForm(UserChangeForm):
 
 
 class UserPasswordEditForm(PasswordChangeForm):
-
     class Meta:
         model = CustomUser
 
@@ -62,3 +61,5 @@ class UserPasswordEditForm(PasswordChangeForm):
         self.fields['new_password2'].widget.attrs.update({
             'placeholder': 'Powtorz nowe haslo',
         })
+
+
