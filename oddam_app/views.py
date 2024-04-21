@@ -5,20 +5,21 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, get_user_model, update_session_auth_hash
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
-from django.contrib.auth.tokens import default_token_generator
+from django.contrib.auth.tokens import default_token_generator, PasswordResetTokenGenerator
 from django.core.mail import send_mail
 from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
+from django.utils.encoding import force_str
 from django.utils.http import urlsafe_base64_decode
 from django.views import View
 
 from oddam_app.forms import UserEditForm, UserPasswordEditForm
 from oddam_app.models import Donation, Institution, Category
-from user.forms import CustomUserCreationForm
+from user.forms import CustomUserCreationForm, CustomUserChangeForm
 from user.models import CustomUser
-from user.utils import send_activation_email
+from user.utils import send_activation_email, send_reset_password_email
 
 
 # Create your views here.
@@ -331,3 +332,49 @@ class ContactView(View):
         else:
             messages.success(request, 'Musisz być zalogowany żeby wysłać wiadomość')
             return redirect('index')
+
+
+class PasswordRecovery(View):
+    def get(self, request):
+        return render(request, 'password_recovery.html')
+
+    def post(self, request):
+        email = request.POST.get('email')
+        if CustomUser.objects.filter(email=email).exists():
+            user = CustomUser.objects.get(email=email)
+            send_reset_password_email(user, request)
+            messages.success(request, 'email wysłany')
+            return redirect('recovery')
+        else:
+            messages.error(request, 'podanego email nie ma w bazie')
+            return redirect('recovery')
+
+
+class PasswordResetConfirmView(View):
+    def get(self, request, uidb64, token):
+        token_generator = PasswordResetTokenGenerator()
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = CustomUser.objects.get(pk=uid)
+
+            if token_generator.check_token(user, token):
+                form = CustomUserChangeForm(user)
+                return render(request, 'set_new_password.html', {'form': form})
+            else:
+                messages.error(request, 'Token jest nieprawidłowy lub wygasł')
+                return redirect('login')
+        except:
+            messages.error(request, 'Nieprawidłowy link resetowania hasła')
+            return redirect('login')
+
+    def post(self, request, uidb64, token):
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = CustomUser.objects.get(pk=uid)
+        form = CustomUserChangeForm(user, request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Hasło pomyślnie zmienione')
+            return redirect('index')
+        else:
+            messages.error(request, 'Błąd zmiany hasła')
+            return render(request, 'set_new_password.html', {'form': form})

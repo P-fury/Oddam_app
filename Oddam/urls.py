@@ -36,4 +36,6 @@ urlpatterns = [
     path('api/dataorg/', views.pag_org_view),
     path('api/datalocal/', views.pag_org_view),
     path('api/contact/', views.ContactView.as_view(), name='contact'),
+    path('passwordrecovery', views.PasswordRecovery.as_view(), name='recovery'),
+    path('reset/<uidb64>/<token>/', views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
 ]
