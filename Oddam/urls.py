@@ -35,4 +35,5 @@ urlpatterns = [
     path('api/datafund/', views.pag_fund_view),
     path('api/dataorg/', views.pag_org_view),
     path('api/datalocal/', views.pag_org_view),
+    path('api/contact/', views.ContactView.as_view(), name='contact'),
 ]

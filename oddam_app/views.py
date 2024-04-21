@@ -1,10 +1,12 @@
 from datetime import date
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, get_user_model, update_session_auth_hash
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import send_mail
 from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
@@ -300,3 +302,32 @@ def activate(request, uidb64, token):
         return redirect('index')
     else:
         return render(request, 'activation_invalid.html')
+
+
+class ContactView(View):
+    def post(self, request):
+        if request.user.is_authenticated:
+            name = request.POST.get('name')
+            surname = request.POST.get('surname')
+            message = request.POST.get('message')
+            if len(name) == 0 or len(surname) == 0 or len(message) == 0:
+                messages.error(request, 'Żadne pole wiadmości nie może byc puste!')
+                return redirect('index')
+            else:
+                email = request.user.email
+                admins = CustomUser.objects.filter(is_staff=True)
+                full_message = f"""
+                Wiadomość z Oddam_app od użytkownika {name} {surname}, {email}:
+                {message}
+                """
+                send_mail(
+                    subject='Wiadmość z formularza strony',
+                    message=full_message,
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[admin.email for admin in admins]
+                )
+                messages.success(request, 'Dziękujemy za wiadomość!')
+                return redirect('index')
+        else:
+            messages.success(request, 'Musisz być zalogowany żeby wysłać wiadomość')
+            return redirect('index')
