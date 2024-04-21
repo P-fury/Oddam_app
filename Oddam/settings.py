@@ -89,12 +89,27 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "OPTIONS": {
+            "min_length": 8,
+        }
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
     },
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+    {
+        'NAME': 'oddam_app.validators.SpecialCharValidator',
+    },
+    {
+        'NAME': 'oddam_app.validators.LowerCharValidator',
+    },
+    {
+        'NAME': 'oddam_app.validators.UpperCharValidator',
+    },
+    {
+        'NAME': 'oddam_app.validators.DigitCharValidator',
     },
 ]
 
