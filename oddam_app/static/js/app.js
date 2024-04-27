@@ -364,7 +364,6 @@ document.addEventListener("DOMContentLoaded", function () {
      */
         // zmienna do list wyboru kategorii przesylaania formularza
     const selectedCategories = [];
-
     const numberOfBags = getNumberOfBags();
     updateSummaryBags(numberOfBags);
     updateSummaryAndRetrieveOrganizationName();
@@ -449,7 +448,21 @@ document.addEventListener("DOMContentLoaded", function () {
     function updateSummaryAndRetrieveOrganizationName() {
         const organizationChoice = document.querySelectorAll('input[name="organization"]');
         const summaryTextElements = document.querySelectorAll('.summary--text');
-        const organizationType = document.querySelector('.type-of-organization').innerText
+
+        /**
+         * do spradzenia
+         * CZAT DO SPRAWDZENIA!!!
+         */
+        const organizationTypeElement = document.querySelector('.type-of-organization');
+
+        // Bezpieczne uzyskiwanie 'innerText', tylko jeśli 'organizationTypeElement' istnieje
+        let organizationType = organizationTypeElement ? organizationTypeElement.innerText.trim() : '';
+
+        if (!organizationType) {
+            console.log('Organization type jest pusty lub nieprawidłowy. Funkcja nie zostanie wykonana.');
+            return; // Zatrzymaj wykonanie funkcji, jeśli typ organizacji jest nieprawidłowy
+        }
+
 
         organizationChoice.forEach(radio => {
             radio.addEventListener('change', function () {
@@ -468,6 +481,17 @@ document.addEventListener("DOMContentLoaded", function () {
     function pickupFormSaveAndWrite() {
         const nextButton = document.querySelector('.form--steps [data-step="4"] .next-step');
         const pickupForm = document.getElementById('pickup_form');
+
+
+        /**
+         * CZAT DO SPRAWDZENIA !!!!
+         */
+        if (!nextButton || !pickupForm) {
+            console.log('Niektóre elementy formularza nie są dostępne.');
+            return; // Zakończenie funkcji, jeśli elementy nie istnieją
+        }
+
+
         let addressDict = {};
         let dateScheduleDict = {}
 
@@ -500,39 +524,44 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    document.getElementById("whole_form").addEventListener("submit", function (event) {
-        event.preventDefault(); // Zapobiega domyślnej akcji formularza (czyli przeładowania strony)
 
-        var form = event.target;
-        var formData = new FormData(form);
+    /**
+     * KOLEJNY IF Z CZATA !!!!!
+     */
+    var formElement = document.getElementById("whole_form");
+    if (formElement) {
+        formElement.addEventListener("submit", function (event) {
+            event.preventDefault();
+            var form = event.target;
+            var formData = new FormData(form);
+            console.log(formData);
 
-        console.log(formData)
-
-        fetch('/adddonation/', {
-            method: 'POST',
-            body: formData
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                window.location.href = "/confirm/"
-                return response.json();
+            fetch('/adddonation/', {
+                method: 'POST',
+                body: formData
             })
-            .then(data => {
-                console.log('Odpowiedź z serwera:', data);
-            })
-            .catch(error => {
-                console.error('Błąd podczas wysyłania żądania:', error);
-            });
-    })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    window.location.href = "/confirm/";
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Odpowiedź z serwera:', data);
+                })
+                .catch(error => {
+                    console.error('Błąd podczas wysyłania żądania:', error);
+                });
+        });
+    } else {
+        console.error('Formularz "whole_form" nie został znaleziony w DOM.');
+    }
 
 
     /**
      * is_taken feature
      */
-
-
     document.querySelectorAll('input[type="checkbox"][id^="is_taken_"]').forEach(function (checkbox) {
         if (checkbox.checked) {
             checkbox.closest('tr').style.backgroundColor = 'rgb(241, 236, 230)';
