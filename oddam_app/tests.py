@@ -1,4 +1,5 @@
 # Create your tests here.
+import time
 
 import pytest
 from django.contrib.auth.models import User
@@ -12,6 +13,7 @@ from selenium.webdriver.support import expected_conditions as EC
 
 import user
 from oddam_app.conftest import create_user
+from oddam_app.models import Institution, Category
 from user.models import CustomUser
 
 
@@ -81,9 +83,20 @@ class selenium_button_tests(StaticLiveServerTestCase):
         self.driver.maximize_window()
         self.user = CustomUser.objects.create_user(email='fix@email.com', password='test123@A', first_name='test_first',
                                                    last_name='test_last', username='test_normal', is_active=True)
+        self.institution = Institution.objects.create(name='selenium_test_inst', description='inst for selenium test',
+                                                      type='fundacja')
+        self.institution2 = Institution.objects.create(name='selenium_test_inst2',
+                                                       description='inst2 for selenium test',
+                                                       type='organizacja_pozarządowa')
+        self.categories = {}
+        for i in range(4):
+            self.categories[f'category{i}'] = Category.objects.create(name=f'selenium_test_category{i}')
+        self.institution.categories.add(self.categories['category1'])
+        self.institution2.categories.add(self.categories['category1'])
 
     def tearDown(self):
-        self.driver.quit()
+        time.sleep(15)
+        pass
 
     def test_login(self):
         self.driver.get(self.live_server_url + '/login/')
@@ -102,4 +115,17 @@ class selenium_button_tests(StaticLiveServerTestCase):
         assert logged_text.text == F'Witaj {self.user.first_name}'
         donation_button = self.driver.find_element(By.LINK_TEXT, "Przekaż dary")
         donation_button.click()
-
+        checkbox_span = self.driver.find_element(By.XPATH,
+                                                 "//label[input[@type='checkbox'][@value='selenium_test_category1']]/span[@class='checkbox']")
+        checkbox_span.click()
+        next_button = self.driver.find_element(By.XPATH, "//button[contains(text(), 'Dalej')]")
+        next_button.click()
+        input_bags = self.driver.find_element(By.NAME, 'bags')
+        input_bags.clear()
+        input_bags.send_keys('66')
+        next_button = self.driver.find_element(By.CSS_SELECTOR, "div[data-step='2'] .btn.next-step")
+        next_button.click()
+        span_element = self.driver.find_element(By.XPATH, "//label[input[@value='2']]/span[@class='checkbox radio']")
+        span_element.click()
+        next_button = self.driver.find_element(By.CSS_SELECTOR, "div[data-step='3'] .btn.next-step")
+        next_button.click()
