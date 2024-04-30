@@ -13,7 +13,7 @@ from selenium.webdriver.support import expected_conditions as EC
 
 import user
 from oddam_app.conftest import create_user
-from oddam_app.models import Institution, Category
+from oddam_app.models import Institution, Category, Donation
 from user.models import CustomUser
 
 
@@ -95,8 +95,8 @@ class selenium_button_tests(StaticLiveServerTestCase):
         self.institution2.categories.add(self.categories['category1'])
 
     def tearDown(self):
-        time.sleep(15)
-        pass
+        time.sleep(5)
+        webdriver.Chrome().quit()
 
     def test_login(self):
         self.driver.get(self.live_server_url + '/login/')
@@ -129,3 +129,31 @@ class selenium_button_tests(StaticLiveServerTestCase):
         span_element.click()
         next_button = self.driver.find_element(By.CSS_SELECTOR, "div[data-step='3'] .btn.next-step")
         next_button.click()
+        street_name = self.driver.find_element(By.XPATH, "//input[@name='address']")
+        city_name = self.driver.find_element(By.XPATH, "//input[@name='city']")
+        post_code = self.driver.find_element(By.XPATH, "//input[@name='postcode']")
+        phone_number = self.driver.find_element(By.XPATH, "//input[@name='phone']")
+        date = self.driver.find_element(By.XPATH, "//input[@name='data']")
+        time = self.driver.find_element(By.XPATH, "//input[@name='time']")
+        more_info = self.driver.find_element(By.XPATH, "//textarea[@name='more_info']")
+
+        street_name.send_keys('selenium_street')
+        city_name_text = 'selenium_city'
+        city_name.send_keys(city_name_text)
+        post_code.send_keys('44-233')
+        phone_number.send_keys('324-322-322')
+        date.send_keys('12/12/1989')
+        time.send_keys('15:45')
+        more_info.send_keys('No more info')
+
+        next_button = self.driver.find_element(By.CSS_SELECTOR, "div[data-step='4'] .btn.next-step")
+        next_button.click()
+
+        confirm_button = self.driver.find_element(By.XPATH, "//button[contains(text(), 'Potwierdzam')]")
+        confirm_button.click()
+
+        assert Donation.objects.count() == 1
+        test_donation = Donation.objects.last()
+        assert test_donation.institution_id == self.institution2.id
+        assert self.categories['category1'] in test_donation.category.all()
+        assert test_donation.city == city_name_text
