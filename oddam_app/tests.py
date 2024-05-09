@@ -66,6 +66,15 @@ def test_confirm_get():
     assert response.status_code == 200
 
 
+@pytest.mark.django_db
+def test_user_page_logged(create_user):
+    client = Client()
+    client.force_login(create_user)
+    url = reverse('user')
+    response = client.get(url)
+    assert response.status_code == 200
+
+
 # ======== LOGIN USER_EDIT ==========
 @pytest.mark.django_db
 def test_user_edit_get(create_user):
